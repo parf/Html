@@ -1,0 +1,71 @@
+#!/usr/bin/env spartan-test
+<?php # this line is optional, just want to run this code as php also
+/*
+ Make sure you have spartan-test in your path:
+   mkdir -p ~/src ~/bin
+   git clone git@github.com:parf/spartan-test.git ~/src/spartan-test
+   ln -s ~/src/spartan-test/spartan-test ~/bin
+*/
+
+; include "Html.php";
+; class H extends \parf\Html {};
+
+H::div("one", "two", "three");
+#="<div>one</div>\n<div>two</div>\n<div>three</div>"
+
+H::span(["content", "attr" => "value"], ["attr-only" => "value"], "<script>", ["attr" => "<script>"]);
+#="<span attr=\"value\">content</span>\n<span attr-only=\"value\"></span>\n<span>&lt;script&gt;</span>\n<span attr=\"&lt;script&gt;\"></span>"
+
+# pairless tags
+H::br();
+#="<br>\n"
+
+// Using Arrays
+$a = [1,2,3];
+#=[1,2,3]
+H::div(...$a);   // draw three divs
+#="<div>1</div>\n<div>2</div>\n<div>3</div>"
+
+// css/xpath alike syntax
+H::{'a#github-link.cool-link.external-link[href=https://github.com/parf/spartan-test#hash][title=Spartan Test]'}(['<Spartan Test @ GitHub>', 'attr' => 'yes'] );
+#="<a attr=\"yes\" id=\"github-link\" class=\"cool-link external-link\" href=\"https://github.com/parf/spartan-test#hash\" title=\"Spartan Test\">&lt;Spartan Test @ GitHub&gt;</a>"
+H::{"div#id1.class-1 span#id2.class-2.class-3 div[my-attr=test][title=This is Div.].x-class#x-id"}(1,2,3);
+#="<div id=\"id1\" class=\"class-1\">\n  <span id=\"id2\" class=\"class-2 class-3\">\n    <div my-attr=\"test\" title=\"This is Div.\" class=\"x-class\" id=\"x-id\">1</div>\n    <div my-attr=\"test\" title=\"This is Div.\" class=\"x-class\" id=\"x-id\">2</div>\n    <div my-attr=\"test\" title=\"This is Div.\" class=\"x-class\" id=\"x-id\">3</div>\n  </span>\n</div>"
+
+// "|" extension - delimit wrapper part and repeating part
+H::{"div.c1 span.c2 | div.c3 span.c4"}(1,2,3);
+#="<div class=\"c1\"><span class=\"c2\">\n  <div class=\"c3\"><span class=\"c4\">1</span></div>\n  <div class=\"c3\"><span class=\"c4\">2</span></div>\n  <div class=\"c3\"><span class=\"c4\">3</span></div>\n</span></div>"
+
+H::{'ul.unordered-list | li span'}('one', 'two', 'three');
+#="<ul class=\"unordered-list\">\n  <li><span>one</span></li>\n  <li><span>two</span></li>\n  <li><span>three</span></li>\n</ul>"
+
+// UNSAFE HTML, placing HTML inside
+H::{'li a'}([1=>"text", "href" => "//site.com"]);
+#="<li>\n  <a href=\"//site.com\">text</a>\n</li>"
+// UNSAFE HTML + ident
+H::{'li a'}([2=>"text", "href" => "//site.com"]);
+#="<li>\n  <a href=\"//site.com\">\n    text\n  </a>\n</li>"
+
+
+// EXTENSIONS:
+// TABLE($table_attrs, array $header, array $rows)
+H::table("#table1.my_class", ["one", "two", "three"],[[[1, "class" => "td-class"],2,3],[4,5,6]]);
+#="<table id=\"table1\" class=\"my_class\">\n  <tr>\n    <th>one</th>\n    <th>two</th>\n    <th>three</th>\n  </tr>\n  <tr>\n    <td class=\"td-class\">1</td>\n    <td>2</td>\n    <td>3</td>\n  </tr>\n  <tr>\n    <td>4</td>\n    <td>5</td>\n    <td>6</td>\n  </tr>\n</table>"
+// TRS(array $header, array-of-arrays $rows)
+H::trs(["one", "two", "three"],[[[1, "class" => "td-class"], 2, 3], [-1=>".selected", 4, 5, 6]]);
+#="<tr>\n  <th>one</th>\n  <th>two</th>\n  <th>three</th>\n</tr>\n<tr>\n  <td class=\"td-class\">1</td>\n  <td>2</td>\n  <td>3</td>\n</tr>\n<tr class=\"selected\">\n  <td>4</td>\n  <td>5</td>\n  <td>6</td>\n</tr>"
+// SELECT($name_or_attrs, array $name2display, $selected=false)
+H::select("my-select.my-class", [1 => 'one', 2 => 'two', 3 => 'three'], 2);
+#="<select class=\"my-class\" name=\"my-select\">\n  <option value=\"1\">one</option>\n  <option value=\"2\" selected>two</option>\n  <option value=\"3\">three</option>\n</select>"
+// CHECKBOX($name_or_attrs, array $value2text, array $checked=[], $template = " %s<br>")
+H::checkbox("my-check.class", ["bike" => "i have a Bike", "car" => "I have a car"], ['car' => 1, 'bike' =>1]);
+#="<input class=\"class\" name=\"my-check\" type=\"checkbox\" value=\"bike\" checked> i have a Bike<br>\n<input class=\"class\" name=\"my-check\" type=\"checkbox\" value=\"car\" checked> I have a car<br>"
+// RADIO($name_or_attrs, array $value2text, $checked=false, $template = " %s<br>")
+H::radio("sex.class", ["male" => "Male", "female" => "Female"], "male");
+#="<input class=\"class\" name=\"sex\" type=\"radio\" value=\"male\" checked> Male<br>\n<input class=\"class\" name=\"sex\" type=\"radio\" value=\"female\"> Female<br>"
+// INPUT_TEXT($name_or_attrs, $value)    
+H::input_text("name", "Parf");
+#="<input value=\"Parf\" name=\"name\">"
+H::input_text("name.class#id", ["Parf", "disabled" => ""]);
+#="<input disabled value=\"Parf\" name=\"name\" class=\"class\" id=\"id\">"
+

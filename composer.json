@@ -1,0 +1,26 @@
+{
+        "name"        : "parf/Html",
+        "description" : "XSS-free HTML generation",
+        "keywords"    : [
+                "html",
+                "generator",
+                "template"
+        ],
+        "homepage"    : "https://github.com/parf/Html",
+        "license"     : "GPL2",
+        "require"     : {
+                "php" : ">=5.6"
+        },
+        "authors"     : [
+                {
+                        "name"     : "Sergey Porfiriev",
+                        "email"    : "sergey.porfiriev@gmail.com",
+                        "role"     : "Developer"
+                }
+        ],
+        "autoload"    : {
+                "psr-0" : {
+                        "parf" : "src/"
+                }
+        },
+}
